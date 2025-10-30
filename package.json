@@ -1,6 +1,6 @@
 {
   "name": "mcp-dashboard",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Dashboard para gestionar MCP Servers y Agentes Orquestadores",
   "main": "agents/orchestrator-agent.js",
   "scripts": {
