@@ -4,27 +4,58 @@ Guía ultra rápida para tener tu sistema funcionando en 15 minutos.
 
 ---
 
-## ⚡ Paso 1: Configurar Supabase (5 min)
+## ⚡ Paso 1: Crear las Tablas en Supabase (5 min)
 
-```bash
-# 1. Crea cuenta en https://supabase.com
-# 2. Crea nuevo proyecto
-# 3. Ve a SQL Editor
-# 4. Ejecuta el script:
+### ✅ TUS CREDENCIALES (Ya Configuradas):
+
+```
+Project URL: https://mmxkcsqflbqzgsekxiwp.supabase.co
+Anon Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1teGtjc3FmbGJxemdzZWt4aXdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3ODQ3MTAsImV4cCI6MjA3NzM2MDcxMH0.iW1ZO8_XYjf5HO6Ozuyo1rpZ_TEdG_rYA-J7WGoZCrU
 ```
 
-Copia y pega todo el contenido de: `database/mcp-manager-schema.sql`
+⚠️ **Necesitas también tu service_role key (secreta) de:** https://supabase.com/dashboard/project/mmxkcsqflbqzgsekxiwp/settings/api
 
-Esto creará:
-- ✓ 8 tablas principales
-- ✓ Catálogo de 30+ MCPs populares
-- ✓ Vistas y funciones auxiliares
+### 🔨 Ejecuta el SQL:
+
+1. **Abre el SQL Editor:**
+
+   👉 https://supabase.com/dashboard/project/mmxkcsqflbqzgsekxiwp/sql/new
+
+2. **Abre el archivo:** `database/mcp-manager-schema.sql` en tu computadora
+
+3. **Copia TODO** (Ctrl+A, Ctrl+C)
+
+4. **Pega en SQL Editor** (Ctrl+V)
+
+5. **Click RUN (▶️)** (esquina superior derecha)
+
+6. **Espera 10-15 segundos** hasta ver: `✓ Success. No rows returned`
+
+7. **Verifica las tablas:**
+
+   👉 https://supabase.com/dashboard/project/mmxkcsqflbqzgsekxiwp/editor
+
+Deberías ver 8 tablas con datos:
+- ✓ mcp_servers (30+ registros)
+- ✓ mcp_configurations
+- ✓ mcp_tools
+- ✓ mcp_usage_logs
+- ✓ agent_orchestrator
+- ✓ specialized_agents
+- ✓ onboarding_steps
+- ✓ user_onboarding_progress
+
+### ✅ Verifica la conexión:
 
 ```bash
-# 5. Obtén tus credenciales:
-#    Settings > API > Copia:
-#    - Project URL
-#    - service_role key (secret)
+cd /root/rogervibes/mcp-dashboard
+node scripts/test-supabase-connection.js
+```
+
+Deberías ver:
+```
+✅ ¡Conexión exitosa con Supabase!
+   • MCP Servers disponibles: 30+
 ```
 
 ---
@@ -45,7 +76,53 @@ tsc orchestrator-agent.ts
 
 ---
 
-## ⚡ Paso 3: Configurar n8n (3 min)
+## ⚡ Paso 3: Deploy Dashboard a Netlify (3 min)
+
+### 🚀 Configurar en Netlify:
+
+1. **Ve a Netlify:** https://app.netlify.com
+
+2. **Add new site** → "Import an existing project"
+
+3. **Conecta con GitHub** → Selecciona: `RogerDevAndroid/mcp-dashboard-manager`
+
+4. **Agrega Environment Variables:**
+
+   En "Site configuration" → "Environment variables" → "Add variable"
+
+   **Variable 1:**
+   ```
+   Key:   NEXT_PUBLIC_SUPABASE_URL
+   Value: https://mmxkcsqflbqzgsekxiwp.supabase.co
+   ```
+
+   **Variable 2:**
+   ```
+   Key:   NEXT_PUBLIC_SUPABASE_ANON_KEY
+   Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1teGtjc3FmbGJxemdzZWt4aXdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3ODQ3MTAsImV4cCI6MjA3NzM2MDcxMH0.iW1ZO8_XYjf5HO6Ozuyo1rpZ_TEdG_rYA-J7WGoZCrU
+   ```
+
+5. **Build settings** (auto-detectado):
+   - Build command: `npm run build`
+   - Publish directory: `out`
+
+6. **Click "Deploy site"**
+
+7. **¡Listo!** Tu dashboard estará en: `https://tu-sitio.netlify.app`
+
+### ✅ Verifica el Dashboard:
+
+Abre tu URL de Netlify y visita:
+- `/` - Dashboard principal
+- `/mcps` - Gestión de MCPs
+- `/agents` - Agentes especializados
+- `/analytics` - Analytics y métricas
+
+---
+
+## ⚡ Paso 4: Configurar n8n (Opcional - 3 min)
+
+Si quieres usar el orchestrator agent con n8n:
 
 Edita `~/.n8n/config` (o créalo si no existe):
 
@@ -57,7 +134,7 @@ Edita `~/.n8n/config` (o créalo si no existe):
       "args": ["/root/rogervibes/mcp-dashboard/agents/orchestrator-agent.js"],
       "env": {
         "USER_ID": "user_001",
-        "SUPABASE_URL": "https://tu-proyecto.supabase.co",
+        "SUPABASE_URL": "https://mmxkcsqflbqzgsekxiwp.supabase.co",
         "SUPABASE_SERVICE_ROLE_KEY": "tu_service_role_key_aqui"
       }
     },
@@ -65,12 +142,20 @@ Edita `~/.n8n/config` (o créalo si no existe):
       "command": "node",
       "args": ["/root/rogervibes/supabasemcp/dist/index.js"],
       "env": {
-        "SUPABASE_URL": "https://tu-proyecto.supabase.co",
-        "SUPABASE_SERVICE_ROLE_KEY": "tu_key"
+        "SUPABASE_URL": "https://mmxkcsqflbqzgsekxiwp.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "tu_service_role_key_aqui"
       }
     }
   }
 }
+```
+
+⚠️ **Obtén tu service_role_key de:** https://supabase.com/dashboard/project/mmxkcsqflbqzgsekxiwp/settings/api
+
+Compila el orchestrator:
+```bash
+cd /root/rogervibes/mcp-dashboard
+npm run build:orchestrator
 ```
 
 Reinicia n8n:
@@ -81,7 +166,7 @@ n8n start
 
 ---
 
-## ⚡ Paso 4: Importar Workflow (2 min)
+## ⚡ Paso 5: Importar Workflow a n8n (2 min)
 
 1. Abre n8n: `http://localhost:5678`
 2. **Import from File** → `workflows/orchestrator-workflow.json`
@@ -93,7 +178,7 @@ n8n start
 
 ---
 
-## ⚡ Paso 5: Configurar tu Primer MCP (2 min)
+## ⚡ Paso 6: Configurar tu Primer MCP (2 min)
 
 Vamos a habilitar Stripe para tu usuario:
 
@@ -365,15 +450,24 @@ WHERE name = 'supabase-rag';
 
 ---
 
-## 🎯 Resumen de 15 Minutos
+## 🎯 Resumen Rápido
 
-1. ✅ **Supabase**: Crear proyecto + ejecutar SQL (5 min)
-2. ✅ **Compilar**: tsc orchestrator-agent.ts (3 min)
-3. ✅ **n8n Config**: Editar ~/.n8n/config (3 min)
-4. ✅ **Import Workflow**: Importar + configurar credenciales (2 min)
-5. ✅ **Habilitar MCP**: SQL para habilitar Stripe (2 min)
+### ⚡ Mínimo para Dashboard Web (8 minutos):
 
-**Total: 15 minutos** → Sistema funcionando ✓
+1. ✅ **Supabase**: Ejecutar SQL (5 min)
+2. ✅ **Netlify**: Deploy dashboard (3 min)
+
+**Total: 8 minutos** → Dashboard funcionando ✓
+
+### 🚀 Completo con n8n (15 minutos):
+
+1. ✅ **Supabase**: Ejecutar SQL (5 min)
+2. ✅ **Netlify**: Deploy dashboard (3 min)
+3. ✅ **Compilar**: Orchestrator agent (3 min)
+4. ✅ **n8n**: Configurar MCPs (2 min)
+5. ✅ **Workflow**: Importar y activar (2 min)
+
+**Total: 15 minutos** → Sistema completo ✓
 
 ---
 
