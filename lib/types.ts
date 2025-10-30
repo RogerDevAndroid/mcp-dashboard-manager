@@ -94,10 +94,15 @@ export interface ExecutiveSummary {
 }
 
 export interface Alert {
-  tipo: 'bajo_rendimiento' | 'poca_actividad' | 'info';
-  brokerId: string;
+  id: string;
+  tipo: 'rendimiento' | 'inactividad' | 'meta' | 'oportunidad' | 'sistema';
+  titulo: string;
   mensaje: string;
   prioridad: 'alta' | 'media' | 'baja';
+  fecha: string;
+  brokerId?: string;
+  brokerNombre?: string;
+  accion?: string;
 }
 
 export interface BrokerPerformance {
