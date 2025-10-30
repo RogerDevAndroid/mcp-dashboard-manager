@@ -108,20 +108,30 @@ export interface Alert {
 export interface BrokerPerformance {
   brokerId: string;
   nombre: string;
-  avatar: string;
+  email?: string;
+  avatar?: string;
   nivel: 'Rookie' | 'Junior' | 'Senior' | 'Elite' | 'Legend';
   puntos: number;
-  llamadas: number;
-  presentaciones: number;
-  ventas: number;
-  revenue: number;
-  tasaConversion: number;
+  posicion: number;
+  cambio: number;
+  metricas: {
+    llamadas: number;
+    presentaciones: number;
+    ventas: number;
+    revenue: number;
+    tasaConversion: number;
+  };
 }
 
 export interface Tendencias {
-  llamadasPorDia: number[];
-  presentacionesPorSemana: number[];
-  ventasPorMes: number[];
+  semanas: string[];
+  llamadas: number[];
+  presentaciones: number[];
+  ventas: number[];
+  revenue: number[];
+  tasasConversion: number[];
+  objetivoSemanal?: number;
+  promedioConversion: number;
 }
 
 export interface ExecutiveDashboardData {
