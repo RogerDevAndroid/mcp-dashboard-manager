@@ -277,6 +277,13 @@ export default function LoginPage() {
 
           {/* Usuarios de prueba */}
           <div className="mt-6 space-y-2">
+            <div className="text-xs text-gray-600 bg-gradient-to-r from-purple-50 to-blue-50 p-3 rounded-lg border border-purple-200">
+              <p className="font-semibold mb-1 text-purple-700">👑 Admin:</p>
+              <p className="font-mono text-gray-800">rgarciavital@gmail.com</p>
+              <p className="font-mono text-gray-600 text-[10px] mt-1">
+                Password: holamundo
+              </p>
+            </div>
             <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded-lg">
               <p className="font-semibold mb-1">Director:</p>
               <p className="font-mono">d.general@selvadentrotulum.com</p>
