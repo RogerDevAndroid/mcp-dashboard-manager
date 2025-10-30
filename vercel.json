@@ -1,0 +1,8 @@
+{
+  "buildCommand": "npm run build",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key"
+  }
+}
