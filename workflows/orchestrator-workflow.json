@@ -1,0 +1,295 @@
+{
+  "name": "MCP Orchestrator - Multi-Agent System",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 400],
+      "id": "telegram-trigger",
+      "name": "Telegram Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "user-id",
+              "name": "user_id",
+              "value": "={{ $json.message.from.id }}",
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "name": "user_message",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "session",
+              "name": "session_id",
+              "value": "={{ $json.message.from.id }}_{{ Date.now() }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [440, 400],
+      "id": "extract-data",
+      "name": "Extract Data"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "agent_orchestrator",
+        "filterType": "string",
+        "filterString": "=user_id=eq.{{ $json.user_id }}"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [640, 400],
+      "id": "get-orchestrator-config",
+      "name": "Get Orchestrator Config"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.data && $json.data.length > 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [840, 400],
+      "id": "config-exists",
+      "name": "Config Exists?"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres el AGENTE ORQUESTADOR del sistema MCP.\n\nTu trabajo es analizar la solicitud del usuario y decidir qué MCPs y agentes especializados usar.\n\nMCPs disponibles:\n{{ JSON.stringify($('Get User MCPs').all()[0].json.data, null, 2) }}\n\nAgentes especializados disponibles:\n{{ JSON.stringify($('Get Specialized Agents').all()[0].json.data, null, 2) }}\n\nSolicitud del usuario:\n{{ $json.user_message }}\n\nPasos que debes seguir:\n1. Analiza la solicitud\n2. Identifica si hay un agente especializado apropiado\n3. Si no, determina qué MCPs son necesarios\n4. Ejecuta las herramientas necesarias\n5. Consolida los resultados\n6. Responde al usuario de forma clara\n\nHerramientas disponibles:\n- orchestrate_task: Para tareas que requieren múltiples MCPs\n- execute_specialized_agent: Para usar un agente especializado\n- execute_mcp_tool: Para llamar directamente a un MCP",
+        "options": {
+          "systemMessage": "Eres un orquestador inteligente que coordina múltiples sistemas y agentes."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1240, 300],
+      "id": "orchestrator-agent",
+      "name": "Orchestrator Agent"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [1120, 500],
+      "id": "openai-model",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Extract Data').item.json.session_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [1120, 600],
+      "id": "memory",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [1120, 700],
+      "id": "mcp-orchestrator",
+      "name": "MCP Orchestrator",
+      "settings": {
+        "mcpServer": "orchestrator"
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "mcp_configurations",
+        "returnAll": false,
+        "filterType": "string",
+        "filterString": "=user_id=eq.{{ $('Extract Data').item.json.user_id }}&enabled=eq.true"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1040, 200],
+      "id": "get-user-mcps",
+      "name": "Get User MCPs"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "specialized_agents",
+        "returnAll": false,
+        "filterType": "string",
+        "filterString": "=user_id=eq.{{ $('Extract Data').item.json.user_id }}&active=eq.true"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1040, 100],
+      "id": "get-specialized-agents",
+      "name": "Get Specialized Agents"
+    },
+    {
+      "parameters": {
+        "tableId": "mcp_usage_logs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $('Extract Data').item.json.user_id }}"
+            },
+            {
+              "fieldId": "session_id",
+              "fieldValue": "={{ $('Extract Data').item.json.session_id }}"
+            },
+            {
+              "fieldId": "success",
+              "fieldValue": "=true"
+            },
+            {
+              "fieldId": "metadata",
+              "fieldValue": "={{ { \"task\": $('Extract Data').item.json.user_message, \"response\": $json.output } }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1440, 300],
+      "id": "log-usage",
+      "name": "Log Usage"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "={{ $('Orchestrator Agent').item.json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1640, 300],
+      "id": "send-response",
+      "name": "Send Response"
+    },
+    {
+      "parameters": {
+        "tableId": "agent_orchestrator",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $('Extract Data').item.json.user_id }}"
+            },
+            {
+              "fieldId": "name",
+              "fieldValue": "Default Orchestrator"
+            },
+            {
+              "fieldId": "system_prompt",
+              "fieldValue": "Eres un agente orquestador inteligente"
+            },
+            {
+              "fieldId": "enabled_mcps",
+              "fieldValue": "=[]"
+            },
+            {
+              "fieldId": "routing_rules",
+              "fieldValue": "=[]"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1040, 500],
+      "id": "create-default-config",
+      "name": "Create Default Config"
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [[{ "node": "Extract Data", "type": "main", "index": 0 }]]
+    },
+    "Extract Data": {
+      "main": [[{ "node": "Get Orchestrator Config", "type": "main", "index": 0 }]]
+    },
+    "Get Orchestrator Config": {
+      "main": [[{ "node": "Config Exists?", "type": "main", "index": 0 }]]
+    },
+    "Config Exists?": {
+      "main": [
+        [
+          { "node": "Get User MCPs", "type": "main", "index": 0 },
+          { "node": "Get Specialized Agents", "type": "main", "index": 0 }
+        ],
+        [{ "node": "Create Default Config", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get User MCPs": {
+      "main": [[{ "node": "Orchestrator Agent", "type": "main", "index": 0 }]]
+    },
+    "Get Specialized Agents": {
+      "main": [[{ "node": "Orchestrator Agent", "type": "main", "index": 0 }]]
+    },
+    "Orchestrator Agent": {
+      "main": [[{ "node": "Log Usage", "type": "main", "index": 0 }]]
+    },
+    "Log Usage": {
+      "main": [[{ "node": "Send Response", "type": "main", "index": 0 }]]
+    },
+    "Create Default Config": {
+      "main": [
+        [
+          { "node": "Get User MCPs", "type": "main", "index": 0 },
+          { "node": "Get Specialized Agents", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [[{ "node": "Orchestrator Agent", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [[{ "node": "Orchestrator Agent", "type": "ai_memory", "index": 0 }]]
+    },
+    "MCP Orchestrator": {
+      "ai_tool": [[{ "node": "Orchestrator Agent", "type": "ai_tool", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
