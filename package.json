@@ -4,10 +4,11 @@
   "description": "Dashboard para gestionar MCP Servers y Agentes Orquestadores",
   "main": "agents/orchestrator-agent.js",
   "scripts": {
-    "build:orchestrator": "cd agents && tsc orchestrator-agent.ts",
+    "build:orchestrator": "cd agents && tsc orchestrator-agent.ts --target ES2022 --module commonjs --downlevelIteration",
     "start:orchestrator": "node agents/orchestrator-agent.js",
     "dev": "next dev",
-    "build": "npm run build:orchestrator && next build",
+    "build": "next build",
+    "build:all": "npm run build:orchestrator && npm run build",
     "start": "next start",
     "lint": "next lint",
     "setup": "npm run build:orchestrator && echo 'Setup complete!'",
