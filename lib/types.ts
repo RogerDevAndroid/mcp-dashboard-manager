@@ -135,10 +135,32 @@ export interface Tendencias {
 }
 
 export interface ExecutiveDashboardData {
-  resumenEquipo: ExecutiveSummary;
-  topPerformers: BrokerPerformance[];
+  lastUpdate: string;
+  resumen: {
+    totalBrokers: number;
+    brokersActivos: number;
+    pipelineTotal: {
+      leads: number;
+      oportunidades: number;
+    };
+    revenueMes: number;
+    conversionPromedio: number;
+    cambios: {
+      brokers: number;
+      pipeline: number;
+      revenue: number;
+      conversion: number;
+    };
+  };
   alertas: Alert[];
+  topPerformers: BrokerPerformance[];
   tendencias: Tendencias;
+  pipeline: Array<{
+    etapa: string;
+    cantidad: number;
+    valor: number;
+    tasaConversion: number;
+  }>;
 }
 
 // Database types

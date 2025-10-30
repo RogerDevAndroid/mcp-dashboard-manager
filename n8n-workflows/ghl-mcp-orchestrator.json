@@ -1,0 +1,541 @@
+{
+  "name": "GHL MCP Orchestrator Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ghl-orchestrator",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "ghl-orchestrator-webhook"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extraer y validar la solicitud entrante\nconst body = $input.item.json.body || {};\nconst query = $input.item.json.query || {};\n\n// Estructura de la solicitud MCP\nconst request = {\n  action: body.action || query.action || 'list_contacts',\n  params: body.params || query.params || {},\n  userId: body.userId || query.userId || 'anonymous',\n  timestamp: new Date().toISOString(),\n  requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`\n};\n\n// Validar que la acción sea válida\nconst validActions = [\n  'list_contacts',\n  'get_contact',\n  'create_contact',\n  'update_contact',\n  'list_opportunities',\n  'get_opportunity',\n  'create_opportunity',\n  'update_opportunity',\n  'list_calendar_events',\n  'create_calendar_event',\n  'sync_broker_data',\n  'get_broker_stats',\n  'get_ranking'\n];\n\nif (!validActions.includes(request.action)) {\n  throw new Error(`Invalid action: ${request.action}. Valid actions: ${validActions.join(', ')}`);\n}\n\nconsole.log('📥 Received request:', request);\n\nreturn {\n  json: request\n};"
+      },
+      "id": "parse-request",
+      "name": "Parse & Validate Request",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.action}}",
+              "operation": "contains",
+              "value2": "contact"
+            }
+          ]
+        }
+      },
+      "id": "route-by-action",
+      "name": "Route by Action Type",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.GHL_API_BASE_URL || 'https://services.leadconnectorhq.com'}}/contacts/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "locationId",
+              "value": "={{$env.GHL_LOCATION_ID}}"
+            },
+            {
+              "name": "limit",
+              "value": "={{$json.params.limit || 50}}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ghl-list-contacts",
+      "name": "GHL - List Contacts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ghl-auth",
+          "name": "GHL API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.action}}",
+              "operation": "contains",
+              "value2": "opportunit"
+            }
+          ]
+        }
+      },
+      "id": "route-opportunities",
+      "name": "Check if Opportunities",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.GHL_API_BASE_URL || 'https://services.leadconnectorhq.com'}}/opportunities/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "locationId",
+              "value": "={{$env.GHL_LOCATION_ID}}"
+            },
+            {
+              "name": "limit",
+              "value": "={{$json.params.limit || 50}}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ghl-list-opportunities",
+      "name": "GHL - List Opportunities",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1050, 350],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ghl-auth",
+          "name": "GHL API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Enriquecer la respuesta de GHL con metadatos MCP\nconst originalRequest = $node['Parse & Validate Request'].json;\nconst ghlResponse = $input.item.json;\n\n// Extraer datos según el tipo de respuesta\nlet data = ghlResponse.contacts || ghlResponse.opportunities || ghlResponse.events || ghlResponse.data || ghlResponse;\n\n// Construir respuesta MCP estándar\nconst mcpResponse = {\n  success: true,\n  action: originalRequest.action,\n  requestId: originalRequest.requestId,\n  timestamp: new Date().toISOString(),\n  data: data,\n  metadata: {\n    count: Array.isArray(data) ? data.length : 1,\n    source: 'gohighlevel',\n    processingTime: Date.now() - new Date(originalRequest.timestamp).getTime(),\n    userId: originalRequest.userId\n  }\n};\n\nconsole.log('✅ MCP Response ready:', {\n  action: mcpResponse.action,\n  count: mcpResponse.metadata.count,\n  processingTime: mcpResponse.metadata.processingTime\n});\n\nreturn {\n  json: mcpResponse\n};"
+      },
+      "id": "format-mcp-response",
+      "name": "Format MCP Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/mcp_requests",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "request_id",
+              "value": "={{$json.requestId}}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{$json.metadata.userId}}"
+            },
+            {
+              "name": "action",
+              "value": "={{$json.action}}"
+            },
+            {
+              "name": "source",
+              "value": "gohighlevel"
+            },
+            {
+              "name": "status",
+              "value": "completed"
+            },
+            {
+              "name": "response_data",
+              "value": "={{JSON.stringify($json)}}"
+            },
+            {
+              "name": "processing_time_ms",
+              "value": "={{$json.metadata.processingTime}}"
+            },
+            {
+              "name": "created_at",
+              "value": "={{$json.timestamp}}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "log-to-supabase",
+      "name": "Log Request to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1450, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "supabase-auth",
+          "name": "Supabase API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{JSON.stringify($json)}}"
+      },
+      "id": "webhook-response",
+      "name": "Return Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Manejar errores y formatear respuesta de error\nconst error = $input.item.json.error || {};\nconst originalRequest = $node['Parse & Validate Request']?.json || {};\n\nconst errorResponse = {\n  success: false,\n  action: originalRequest.action || 'unknown',\n  requestId: originalRequest.requestId || `err_${Date.now()}`,\n  timestamp: new Date().toISOString(),\n  error: {\n    message: error.message || 'Unknown error occurred',\n    code: error.code || 'INTERNAL_ERROR',\n    details: error.details || error\n  },\n  metadata: {\n    userId: originalRequest.userId || 'anonymous',\n    source: 'gohighlevel'\n  }\n};\n\nconsole.error('❌ Error processing request:', errorResponse);\n\nreturn {\n  json: errorResponse\n};"
+      },
+      "id": "error-handler",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1250, 500]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.action}}",
+              "operation": "contains",
+              "value2": "calendar"
+            }
+          ]
+        }
+      },
+      "id": "route-calendar",
+      "name": "Check if Calendar",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 600]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.GHL_API_BASE_URL || 'https://services.leadconnectorhq.com'}}/calendars/events",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "locationId",
+              "value": "={{$env.GHL_LOCATION_ID}}"
+            },
+            {
+              "name": "limit",
+              "value": "={{$json.params.limit || 50}}"
+            },
+            {
+              "name": "userId",
+              "value": "={{$json.params.brokerId || ''}}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ghl-list-calendar",
+      "name": "GHL - List Calendar Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1050, 550],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ghl-auth",
+          "name": "GHL API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.action}}",
+              "operation": "equals",
+              "value2": "sync_broker_data"
+            }
+          ]
+        }
+      },
+      "id": "route-sync",
+      "name": "Check if Sync",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 800]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/sync/broker",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "brokerId",
+              "value": "={{$json.params.brokerId}}"
+            },
+            {
+              "name": "syncType",
+              "value": "={{$json.params.syncType || 'full'}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "trigger-broker-sync",
+      "name": "Trigger Broker Sync",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1050, 750]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse & Validate Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Validate Request": {
+      "main": [
+        [
+          {
+            "node": "Route by Action Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Action Type": {
+      "main": [
+        [
+          {
+            "node": "GHL - List Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check if Opportunities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Opportunities": {
+      "main": [
+        [
+          {
+            "node": "GHL - List Opportunities",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check if Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Calendar": {
+      "main": [
+        [
+          {
+            "node": "GHL - List Calendar Events",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check if Sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Sync": {
+      "main": [
+        [
+          {
+            "node": "Trigger Broker Sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL - List Contacts": {
+      "main": [
+        [
+          {
+            "node": "Format MCP Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL - List Opportunities": {
+      "main": [
+        [
+          {
+            "node": "Format MCP Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GHL - List Calendar Events": {
+      "main": [
+        [
+          {
+            "node": "Format MCP Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Broker Sync": {
+      "main": [
+        [
+          {
+            "node": "Format MCP Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format MCP Response": {
+      "main": [
+        [
+          {
+            "node": "Log Request to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Request to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Return Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-01-30T00:00:00.000Z",
+      "updatedAt": "2025-01-30T00:00:00.000Z",
+      "id": "1",
+      "name": "MCP"
+    },
+    {
+      "createdAt": "2025-01-30T00:00:00.000Z",
+      "updatedAt": "2025-01-30T00:00:00.000Z",
+      "id": "2",
+      "name": "GoHighLevel"
+    },
+    {
+      "createdAt": "2025-01-30T00:00:00.000Z",
+      "updatedAt": "2025-01-30T00:00:00.000Z",
+      "id": "3",
+      "name": "Orchestrator"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-01-30T00:00:00.000Z",
+  "versionId": "1"
+}

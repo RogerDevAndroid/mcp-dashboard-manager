@@ -21,9 +21,10 @@ export interface FilterConfig {
 
 interface DynamicFiltersProps {
   initialFilters?: FilterConfig;
-  availableBrokers: Array<{ id: string; name: string }>;
+  availableBrokers: Array<{ id?: string; broker_id?: string; nombre?: string; name?: string; email?: string }>;
   availablePipelines?: Array<{ id: string; name: string }>;
-  onFilterChange: (filters: FilterConfig) => void;
+  onFilterChange?: (filters: FilterConfig) => void;
+  onApplyFilters?: (filters: FilterConfig) => void;
   onSaveFilter?: (name: string, filters: FilterConfig) => void;
 }
 
@@ -32,8 +33,10 @@ export default function DynamicFilters({
   availableBrokers,
   availablePipelines = [],
   onFilterChange,
+  onApplyFilters,
   onSaveFilter,
 }: DynamicFiltersProps) {
+  const handleFilterChange = onFilterChange || onApplyFilters;
   const [isOpen, setIsOpen] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [filterName, setFilterName] = useState('');
@@ -137,7 +140,7 @@ export default function DynamicFilters({
 
   // Aplicar filtros
   const applyFilters = () => {
-    onFilterChange(filters);
+    handleFilterChange?.(filters);
     setIsOpen(false);
   };
 
@@ -158,7 +161,7 @@ export default function DynamicFilters({
       activityTypes: [],
     };
     setFilters(defaultFilters);
-    onFilterChange(defaultFilters);
+    handleFilterChange?.(defaultFilters);
   };
 
   // Guardar filtro
