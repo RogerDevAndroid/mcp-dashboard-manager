@@ -11,13 +11,13 @@ import MiniLeaderboard from '../components/MiniLeaderboard';
 import AchievementsBadges from '../components/AchievementsBadges';
 
 interface BrokerDashboardPageProps {
-  params: {
+  params: Promise<{
     brokerId: string;
-  };
+  }>;
 }
 
 export default async function BrokerDashboardPage({ params }: BrokerDashboardPageProps) {
-  const { brokerId } = params;
+  const { brokerId } = await params;
 
   // Verificar autenticación y autorización
   const user = await getCurrentUser();
