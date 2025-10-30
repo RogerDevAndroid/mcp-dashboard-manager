@@ -1,64 +1,66 @@
 // app/login/page.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       // Autenticar con Supabase
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data: authData, error: authError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
       if (authError) throw authError;
 
       if (!authData.user) {
-        throw new Error('No se pudo autenticar el usuario');
+        throw new Error("No se pudo autenticar el usuario");
       }
 
       // Obtener información del broker
       const { data: profile, error: profileError } = await supabase
-        .from('broker_profiles')
-        .select('broker_id, nombre, role')
-        .eq('user_id', authData.user.id)
+        .from("broker_profiles")
+        .select("broker_id, nombre, role")
+        .eq("user_id", authData.user.id)
         .single();
 
       if (profileError) {
-        throw new Error('No se pudo obtener el perfil del usuario');
+        throw new Error("No se pudo obtener el perfil del usuario");
       }
 
       // Actualizar último login
       await supabase
-        .from('broker_profiles')
+        .from("broker_profiles")
         .update({ ultimo_login: new Date().toISOString() })
-        .eq('user_id', authData.user.id);
+        .eq("user_id", authData.user.id);
 
       // Redirigir según rol
-      if (profile.role === 'director' || profile.role === 'admin') {
-        router.push('/executive');
-      } else if (profile.role === 'manager') {
-        router.push('/executive');
+      if (profile.role === "director" || profile.role === "admin") {
+        router.push("/executive");
+      } else if (profile.role === "manager") {
+        router.push("/executive");
       } else {
         router.push(`/broker/${profile.broker_id}`);
       }
-
     } catch (err: any) {
-      console.error('Error de login:', err);
-      setError(err.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+      console.error("Error de login:", err);
+      setError(
+        err.message || "Error al iniciar sesión. Verifica tus credenciales.",
+      );
     } finally {
       setLoading(false);
     }
@@ -87,9 +89,7 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold text-white mb-2">
             Selvadentro Tulum
           </h1>
-          <p className="text-blue-100 text-lg">
-            Dashboard de Brokers
-          </p>
+          <p className="text-blue-100 text-lg">Dashboard de Brokers</p>
         </div>
 
         {/* Formulario de Login */}
@@ -120,7 +120,10 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} className="space-y-6">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Correo Electrónico
               </label>
               <div className="relative">
@@ -145,7 +148,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-3 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="tu@email.com"
                 />
               </div>
@@ -153,7 +156,10 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Contraseña
               </label>
               <div className="relative">
@@ -178,7 +184,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="block w-full pl-10 pr-3 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-colors"
                   placeholder="••••••••"
                 />
               </div>
@@ -192,7 +198,10 @@ export default function LoginPage() {
                   type="checkbox"
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
+                <label
+                  htmlFor="remember"
+                  className="ml-2 block text-sm text-gray-700"
+                >
                   Recordarme
                 </label>
               </div>
@@ -212,7 +221,11 @@ export default function LoginPage() {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
                     <circle
                       className="opacity-25"
                       cx="12"
@@ -231,7 +244,12 @@ export default function LoginPage() {
                 </>
               ) : (
                 <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
