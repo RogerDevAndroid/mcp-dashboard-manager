@@ -139,9 +139,90 @@ export const analyticsQueries = {
       query = query.eq('user_id', userId)
     }
 
-    const { data, error } = await query
+    const { data, error} = await query
 
     if (error) throw error
     return data
   }
+}
+
+// Broker Dashboard Queries
+export const brokerQueries = {
+  // Get broker dashboard data
+  getBrokerDashboard: async (brokerId: string) => {
+    const { data, error } = await supabase
+      .from('vw_broker_dashboard')
+      .select('*')
+      .eq('broker_id', brokerId)
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  // Get broker profile
+  getBrokerProfile: async (brokerId: string) => {
+    const { data, error } = await supabase
+      .from('broker_profiles')
+      .select('*')
+      .eq('broker_id', brokerId)
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  // Get broker tasks
+  getBrokerTasks: async (brokerId: string, limit: number = 10) => {
+    const { data, error } = await supabase
+      .from('tareas_broker')
+      .select('*')
+      .eq('broker_id', brokerId)
+      .eq('completada', false)
+      .order('prioridad', { ascending: false })
+      .limit(limit)
+
+    if (error) throw error
+    return data
+  },
+
+  // Get broker achievements
+  getBrokerAchievements: async (brokerId: string, days: number = 7) => {
+    const startDate = new Date()
+    startDate.setDate(startDate.getDate() - days)
+
+    const { data, error } = await supabase
+      .from('broker_achievements')
+      .select('*, achievement:logros_achievements(*)')
+      .eq('broker_id', brokerId)
+      .gte('fecha_obtenido', startDate.toISOString())
+      .order('fecha_obtenido', { ascending: false })
+
+    if (error) throw error
+    return data
+  },
+
+  // Get leaderboard
+  getLeaderboard: async (limit: number = 10) => {
+    const { data, error } = await supabase
+      .from('vw_ranking_actual')
+      .select('*')
+      .order('puntos_mes', { ascending: false })
+      .limit(limit)
+
+    if (error) throw error
+    return data
+  }
+}
+
+// Server-side client with service role
+export function getServiceSupabase() {
+  if (!process.env.SUPABASE_SERVICE_KEY) {
+    throw new Error('Missing env.SUPABASE_SERVICE_KEY')
+  }
+
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY
+  )
 }

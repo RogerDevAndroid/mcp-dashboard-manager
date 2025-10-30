@@ -1,8 +1,12 @@
 {
   "buildCommand": "npm run build",
   "framework": "nextjs",
+  "installCommand": "npm install",
   "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key"
+    "NEXT_PUBLIC_SUPABASE_URL": "https://qokskmzbugfmthwioukz.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFva3NrbXpidWdmbXRod2lvdWt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3NDQwOTksImV4cCI6MjA3NzMyMDA5OX0.0c48nbIpEwnwU8npA9Elu_jn0IEEr8qjVdGvL8jLGIM",
+    "SUPABASE_SERVICE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFva3NrbXpidWdmbXRod2lvdWt6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTc0NDA5OSwiZXhwIjoyMDc3MzIwMDk5fQ.OXWaAvK8acIdOr5x5cy4JkTb2L_Z50iwqsW1fst1wso",
+    "GHL_PRIVATE_TOKEN": "pit-84d7687f-d43f-4434-9804-c671c669dd0f",
+    "GHL_LOCATION_ID": "crN2IhAuOBAl7D8324yI"
   }
 }

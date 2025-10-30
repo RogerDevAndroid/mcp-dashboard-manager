@@ -1,0 +1,162 @@
+{
+  "agent": {
+    "id": "JWkZYNaQyKuRfPEnBeiC",
+    "name": "Pablo Saracho"
+  },
+  "generatedAt": "2025-10-30T09:14:56.870Z",
+  "kpis": {
+    "volume": {
+      "totalLeads": 17,
+      "leadsThisMonth": 17,
+      "leadsLast30Days": 17,
+      "totalOpportunities": 0,
+      "openOpportunities": 0,
+      "wonOpportunities": 0,
+      "lostOpportunities": 0
+    },
+    "conversion": {
+      "leadToOppRate": 0,
+      "winRate": 0
+    },
+    "revenue": {
+      "totalRevenue": 0,
+      "pipelineValue": 0,
+      "avgDealSize": 0,
+      "forecastedRevenue": 0
+    },
+    "quality": {
+      "dataCompleteness": 100,
+      "contactsWithEmail": 17,
+      "contactsWithPhone": 17
+    },
+    "activity": {
+      "recentContacts": 17,
+      "recentOpportunities": 0,
+      "activeLeadsLast7Days": 17,
+      "activeOppsLast7Days": 0
+    },
+    "pipeline": {}
+  },
+  "contacts": [
+    {
+      "id": "pCDf0Om61ZufPWIaedv3",
+      "name": "danny kohli",
+      "email": "danny@remax-action.ca",
+      "phone": "+15149071456",
+      "dateAdded": "2025-10-30T00:40:41.995Z"
+    },
+    {
+      "id": "OfQDsztUEPRvYdLM48vj",
+      "name": "mireille desjardins",
+      "email": "mimidesjardins@gmail.com",
+      "phone": "+15069623733",
+      "dateAdded": "2025-10-29T21:32:28.244Z"
+    },
+    {
+      "id": "uZMRY9pKDhO3cTMVDtSY",
+      "name": "ahmad abbas",
+      "email": "eliyarealty@gmail.com",
+      "phone": "+16474589110",
+      "dateAdded": "2025-10-29T03:29:14.259Z"
+    },
+    {
+      "id": "6Mv7fY5nAAZ9UaDYLqDq",
+      "name": "☬⁣🅐🅡🅜🅐🅝☬",
+      "email": "armansh.realestate@gmail.com",
+      "phone": "+16474000339",
+      "dateAdded": "2025-10-28T19:09:33.372Z"
+    },
+    {
+      "id": "WgTL08XTBXgf8me25V1f",
+      "name": "pierre fortin",
+      "email": "pierreartconcept@gmail.com",
+      "phone": "+12896004722",
+      "dateAdded": "2025-10-28T13:00:09.818Z"
+    },
+    {
+      "id": "aysDlV6ZisWapHxZ1bz2",
+      "name": "akram pa",
+      "email": "qmoon2021@gmail.com",
+      "phone": "+16476064889",
+      "dateAdded": "2025-10-28T11:56:09.955Z"
+    },
+    {
+      "id": "z9i2p8aukNsOV3qiqNYF",
+      "name": "coach jordan",
+      "email": "jlazaruk@gmail.com",
+      "phone": "+17787142883",
+      "dateAdded": "2025-10-28T01:18:25.352Z"
+    },
+    {
+      "id": "deolcVVKxgVRgimqCbvX",
+      "name": "andy lulla",
+      "email": "azureent2018@gmail.com",
+      "phone": "+2048812588",
+      "dateAdded": "2025-10-27T21:35:14.060Z"
+    },
+    {
+      "id": "tjAbwv1EbahQ8W6wBuSE",
+      "name": "raphael international",
+      "email": "raphael.imbeault@hotmail.com",
+      "phone": "+14382290479",
+      "dateAdded": "2025-10-27T13:50:16.207Z"
+    },
+    {
+      "id": "NilsJWyO72iWwG69A8RF",
+      "name": "kunal sharma",
+      "email": "inbox1.ksharma@gmail.com",
+      "phone": "+526476226311",
+      "dateAdded": "2025-10-27T04:23:19.685Z"
+    },
+    {
+      "id": "Xi6dKoBwOkAEZH0OTeQ2",
+      "name": "paulo sergio gonzalez",
+      "email": "paulosergio.gonzalez@remax-quebec.com",
+      "phone": "+15149626144",
+      "dateAdded": "2025-10-26T23:48:32.903Z"
+    },
+    {
+      "id": "UKBdcdmdqfFmMBEhn5GF",
+      "name": "maria jose diaz",
+      "email": "majohummingbird@gmail.com",
+      "phone": "+17056068929",
+      "dateAdded": "2025-10-26T23:38:04.345Z"
+    },
+    {
+      "id": "0cLIXq0GrLy6yWKP0AxA",
+      "name": "adolfo",
+      "email": "adolfo@3tiermexico.mx",
+      "phone": "+529983547778",
+      "dateAdded": "2025-10-26T16:12:57.629Z"
+    },
+    {
+      "id": "aaZ1uK3I65i3XGirArcK",
+      "name": "ruben fox",
+      "email": "eweruben@gmail.com",
+      "phone": "+16475518658",
+      "dateAdded": "2025-10-26T16:12:57.584Z"
+    },
+    {
+      "id": "jWcnWOwKxMwH4FIsArDi",
+      "name": "monica nanclares",
+      "email": "thinkcasa1st@gmail.com",
+      "phone": "+5214384905682",
+      "dateAdded": "2025-10-26T16:12:57.122Z"
+    },
+    {
+      "id": "nbIWH9sTygoQfW66Yvh2",
+      "name": "shikha",
+      "email": "shikha23@ymail.com",
+      "phone": "+52647716194",
+      "dateAdded": "2025-10-26T16:12:57.061Z"
+    },
+    {
+      "id": "achw3lHuRK4GRNEIBpR7",
+      "name": "layan smith",
+      "email": "layansmith16@gmail.com",
+      "phone": "+14389387823",
+      "dateAdded": "2025-10-26T16:12:56.863Z"
+    }
+  ],
+  "opportunities": []
+}

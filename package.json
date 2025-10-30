@@ -11,8 +11,13 @@
     "build:all": "npm run build:orchestrator && npm run build",
     "start": "next start",
     "lint": "next lint",
+    "type-check": "tsc --noEmit",
     "setup": "npm run build:orchestrator && echo 'Setup complete!'",
-    "test:orchestrator": "USER_ID=test_user node agents/orchestrator-agent.js"
+    "test:orchestrator": "USER_ID=test_user node agents/orchestrator-agent.js",
+    "worker": "node workers/ghl-sync-worker.js",
+    "worker:pm2": "pm2 start workers/ghl-sync-worker.js --name ghl-sync",
+    "worker:stop": "pm2 stop ghl-sync",
+    "db:migrate": "psql $SUPABASE_DATABASE_URL -f database/gamification-schema.sql"
   },
   "keywords": ["mcp", "orchestrator", "ai-agents", "automation", "n8n"],
   "author": "RogerVibes",
@@ -20,15 +25,20 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "@supabase/supabase-js": "^2.39.0",
-    "next": "^14.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "@supabase/auth-helpers-nextjs": "^0.8.7",
+    "next": "^15.0.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
     "@heroicons/react": "^2.1.0",
     "axios": "^1.7.2",
     "date-fns": "^3.0.0",
     "react-hot-toast": "^2.4.1",
     "zustand": "^4.4.7",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "recharts": "^2.10.3",
+    "lucide-react": "^0.294.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.2.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
