@@ -1,0 +1,418 @@
+{
+  "onboarding_flows": {
+    "stripe": {
+      "mcp_name": "stripe",
+      "display_name": "Stripe",
+      "steps": [
+        {
+          "step_order": 1,
+          "title": "Bienvenido a Stripe MCP",
+          "description": "Stripe te permite procesar pagos, gestionar suscripciones y analizar transacciones directamente desde tu agente de IA.",
+          "step_type": "info",
+          "config": {
+            "features": [
+              "Procesar pagos y reembolsos",
+              "Gestionar suscripciones",
+              "Crear y actualizar clientes",
+              "Analizar transacciones",
+              "Gestionar productos y precios"
+            ]
+          },
+          "help_url": "https://stripe.com/docs"
+        },
+        {
+          "step_order": 2,
+          "title": "Obtener API Key de Stripe",
+          "description": "1. Ve a https://dashboard.stripe.com\n2. Inicia sesión en tu cuenta\n3. Ve a Developers > API Keys\n4. Copia tu 'Secret Key' (empieza con 'sk_')\n\n⚠️ IMPORTANTE: Nunca compartas esta clave. Es secreta.",
+          "step_type": "api_key",
+          "config": {
+            "field_name": "STRIPE_API_KEY",
+            "field_label": "Stripe Secret Key",
+            "field_placeholder": "sk_live_...",
+            "field_help": "Tu Secret Key de Stripe",
+            "masked": true
+          },
+          "validation_rules": {
+            "pattern": "^sk_(test|live)_[a-zA-Z0-9]{24,}$",
+            "required": true,
+            "error_message": "La clave debe empezar con 'sk_test_' o 'sk_live_'"
+          },
+          "help_url": "https://dashboard.stripe.com/apikeys"
+        },
+        {
+          "step_order": 3,
+          "title": "Probar Conexión",
+          "description": "Vamos a verificar que la conexión funciona correctamente obteniendo información de tu cuenta.",
+          "step_type": "test",
+          "config": {
+            "test_action": "get_account_info",
+            "success_message": "¡Conexión exitosa! Stripe está listo para usar.",
+            "error_message": "No pudimos conectar con Stripe. Verifica tu API Key."
+          },
+          "help_url": "https://stripe.com/docs/api"
+        },
+        {
+          "step_order": 4,
+          "title": "¡Listo!",
+          "description": "Stripe MCP está configurado y listo para usar. Puedes:\n\n• Procesar pagos\n• Gestionar suscripciones\n• Analizar transacciones\n• Crear productos\n\nPrueba preguntándole a tu agente: 'Lista mis últimas 10 transacciones'",
+          "step_type": "completion",
+          "config": {
+            "next_steps": [
+              {
+                "title": "Ver ejemplos de uso",
+                "action": "show_examples"
+              },
+              {
+                "title": "Configurar agente de ventas",
+                "action": "setup_sales_agent"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "gohighlevel": {
+      "mcp_name": "gohighlevel",
+      "display_name": "GoHighLevel",
+      "steps": [
+        {
+          "step_order": 1,
+          "title": "Bienvenido a GoHighLevel MCP",
+          "description": "GoHighLevel te permite gestionar tu CRM, contactos, pipelines y campañas de marketing directamente desde tu agente.",
+          "step_type": "info",
+          "config": {
+            "features": [
+              "Gestionar contactos y leads",
+              "Mover contactos en pipelines",
+              "Enviar SMS y emails",
+              "Crear oportunidades",
+              "Buscar conversaciones"
+            ]
+          },
+          "help_url": "https://highlevel.com/docs"
+        },
+        {
+          "step_order": 2,
+          "title": "Obtener API Key",
+          "description": "1. Inicia sesión en GoHighLevel\n2. Ve a Settings > Integrations > API Key\n3. Copia tu API Key",
+          "step_type": "api_key",
+          "config": {
+            "field_name": "GHL_API_KEY",
+            "field_label": "GoHighLevel API Key",
+            "field_placeholder": "eyJhbGci...",
+            "masked": true
+          },
+          "validation_rules": {
+            "required": true,
+            "min_length": 20
+          },
+          "help_url": "https://highlevel.com/integrations/api"
+        },
+        {
+          "step_order": 3,
+          "title": "Obtener Location ID",
+          "description": "1. En GoHighLevel, ve a Settings > Business Profile\n2. El Location ID está en la URL o en la configuración\n3. Copia el Location ID",
+          "step_type": "input",
+          "config": {
+            "field_name": "GHL_LOCATION_ID",
+            "field_label": "Location ID",
+            "field_placeholder": "xxxxxxxxxxxxx",
+            "field_help": "ID de tu location/agencia"
+          },
+          "validation_rules": {
+            "required": true,
+            "min_length": 10
+          }
+        },
+        {
+          "step_order": 4,
+          "title": "Probar Conexión",
+          "description": "Verificaremos la conexión obteniendo información de tu account.",
+          "step_type": "test",
+          "config": {
+            "test_action": "search_contacts",
+            "success_message": "¡Conexión exitosa! GoHighLevel está listo.",
+            "error_message": "Error de conexión. Verifica tus credenciales."
+          }
+        },
+        {
+          "step_order": 5,
+          "title": "¡Configurado!",
+          "description": "GoHighLevel MCP está listo. Puedes empezar a:\n\n• Crear y actualizar contactos\n• Gestionar pipelines\n• Enviar mensajes\n• Buscar conversaciones",
+          "step_type": "completion",
+          "config": {
+            "next_steps": [
+              {
+                "title": "Configurar agente de ventas",
+                "action": "setup_sales_agent"
+              },
+              {
+                "title": "Ver workflows de ejemplo",
+                "action": "show_workflows"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "supabase-rag": {
+      "mcp_name": "supabase-rag",
+      "display_name": "Supabase RAG",
+      "steps": [
+        {
+          "step_order": 1,
+          "title": "Bienvenido a Supabase RAG MCP",
+          "description": "Supabase RAG te da acceso a un agente con memoria persistente, base de conocimiento y búsqueda semántica.",
+          "step_type": "info",
+          "config": {
+            "features": [
+              "Memoria de conversaciones",
+              "Base de conocimiento",
+              "Búsqueda vectorial (RAG)",
+              "Gestión de tareas",
+              "Estados del agente"
+            ]
+          },
+          "help_url": "https://supabase.com/docs"
+        },
+        {
+          "step_order": 2,
+          "title": "Crear Proyecto en Supabase",
+          "description": "1. Ve a https://supabase.com\n2. Crea una cuenta o inicia sesión\n3. Click en 'New Project'\n4. Completa nombre, password y región\n5. Espera a que se cree (2-3 minutos)",
+          "step_type": "info",
+          "config": {
+            "action_button": {
+              "label": "Abrir Supabase",
+              "url": "https://supabase.com/dashboard"
+            }
+          },
+          "help_url": "https://supabase.com/docs/guides/getting-started"
+        },
+        {
+          "step_order": 3,
+          "title": "Obtener Credenciales",
+          "description": "En tu proyecto de Supabase:\n1. Ve a Settings > API\n2. Copia 'Project URL'\n3. Copia 'service_role key' (secret)",
+          "step_type": "input",
+          "config": {
+            "fields": [
+              {
+                "name": "SUPABASE_URL",
+                "label": "Project URL",
+                "placeholder": "https://xxxxx.supabase.co",
+                "type": "url"
+              },
+              {
+                "name": "SUPABASE_SERVICE_ROLE_KEY",
+                "label": "Service Role Key",
+                "placeholder": "eyJhbGci...",
+                "type": "password",
+                "masked": true
+              }
+            ]
+          },
+          "validation_rules": {
+            "SUPABASE_URL": {
+              "required": true,
+              "pattern": "^https://[a-zA-Z0-9-]+\\.supabase\\.co$"
+            },
+            "SUPABASE_SERVICE_ROLE_KEY": {
+              "required": true,
+              "min_length": 100
+            }
+          }
+        },
+        {
+          "step_order": 4,
+          "title": "Configurar Base de Datos",
+          "description": "Necesitamos crear las tablas en tu base de datos.\n\n1. En Supabase, ve a SQL Editor\n2. Ejecutaremos el script automáticamente\n\nEsto creará las tablas para:\n• Mensajes del agente\n• Tareas\n• Estado\n• Conocimiento\n• Documentos (vectores)",
+          "step_type": "input",
+          "config": {
+            "action": "run_sql_script",
+            "script_name": "supabase-schema.sql",
+            "auto_execute": true,
+            "success_message": "Base de datos configurada correctamente"
+          }
+        },
+        {
+          "step_order": 5,
+          "title": "Probar Conexión",
+          "description": "Verificaremos que todo funciona correctamente.",
+          "step_type": "test",
+          "config": {
+            "test_action": "test_connection",
+            "tests": [
+              {
+                "name": "Conexión a base de datos",
+                "test": "connection"
+              },
+              {
+                "name": "Tablas creadas",
+                "test": "tables_exist"
+              },
+              {
+                "name": "Extensión pgvector",
+                "test": "vector_extension"
+              }
+            ],
+            "success_message": "¡Todo configurado correctamente!",
+            "error_message": "Hay un problema. Revisa los detalles."
+          }
+        },
+        {
+          "step_order": 6,
+          "title": "¡Listo para usar!",
+          "description": "Supabase RAG MCP está completamente configurado.\n\nAhora puedes:\n• Tener conversaciones con memoria\n• Entrenar el agente con documentos\n• Crear una base de conocimiento\n• Gestionar tareas\n\nPróximo paso: Subir tus primeros documentos para RAG",
+          "step_type": "completion",
+          "config": {
+            "next_steps": [
+              {
+                "title": "Subir documentos",
+                "action": "upload_documents",
+                "description": "Entrena tu agente con tus documentos"
+              },
+              {
+                "title": "Probar el agente",
+                "action": "test_agent",
+                "description": "Haz tu primera pregunta"
+              },
+              {
+                "title": "Ver ejemplos",
+                "action": "show_examples"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "notion": {
+      "mcp_name": "notion",
+      "display_name": "Notion",
+      "steps": [
+        {
+          "step_order": 1,
+          "title": "Bienvenido a Notion MCP",
+          "description": "Notion te permite leer documentos, actualizar páginas y gestionar bases de datos desde tu agente.",
+          "step_type": "info",
+          "config": {
+            "features": [
+              "Leer páginas y databases",
+              "Crear y actualizar contenido",
+              "Buscar en tu workspace",
+              "Gestionar tareas"
+            ]
+          }
+        },
+        {
+          "step_order": 2,
+          "title": "Conectar con Notion (OAuth)",
+          "description": "Usaremos OAuth para conectar de forma segura con tu workspace de Notion.",
+          "step_type": "oauth",
+          "config": {
+            "provider": "notion",
+            "scopes": ["read_content", "update_content", "insert_content"],
+            "oauth_url": "https://mcp.notion.com/oauth/authorize",
+            "button_label": "Conectar con Notion"
+          }
+        },
+        {
+          "step_order": 3,
+          "title": "Seleccionar Páginas",
+          "description": "¿Qué páginas quieres que el agente pueda acceder?",
+          "step_type": "input",
+          "config": {
+            "field_type": "multiselect",
+            "fetch_options": "list_pages",
+            "field_label": "Páginas disponibles",
+            "field_help": "Selecciona las páginas que el agente puede leer/editar"
+          }
+        },
+        {
+          "step_order": 4,
+          "title": "¡Conectado!",
+          "description": "Notion está listo. Tu agente puede ahora acceder a tus documentos y bases de datos.",
+          "step_type": "completion",
+          "config": {
+            "next_steps": [
+              {
+                "title": "Configurar agente de soporte",
+                "action": "setup_support_agent"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "linear": {
+      "mcp_name": "linear",
+      "display_name": "Linear",
+      "steps": [
+        {
+          "step_order": 1,
+          "title": "Bienvenido a Linear MCP",
+          "description": "Linear te permite gestionar issues, proyectos y sprints directamente desde tu agente.",
+          "step_type": "info"
+        },
+        {
+          "step_order": 2,
+          "title": "Conectar con Linear (OAuth)",
+          "description": "Conectaremos tu cuenta de Linear de forma segura.",
+          "step_type": "oauth",
+          "config": {
+            "provider": "linear",
+            "oauth_url": "https://mcp.linear.app/oauth/authorize"
+          }
+        },
+        {
+          "step_order": 3,
+          "title": "Seleccionar Teams",
+          "description": "¿Con qué teams quieres que el agente trabaje?",
+          "step_type": "input",
+          "config": {
+            "field_type": "multiselect",
+            "fetch_options": "list_teams"
+          }
+        },
+        {
+          "step_order": 4,
+          "title": "¡Listo!",
+          "description": "Linear está configurado. Puedes crear issues, actualizar estados y más.",
+          "step_type": "completion"
+        }
+      ]
+    }
+  },
+  "general_onboarding_template": {
+    "steps": [
+      {
+        "step_order": 1,
+        "title": "Información General",
+        "step_type": "info",
+        "description": "Descripción del MCP y sus capacidades"
+      },
+      {
+        "step_order": 2,
+        "title": "Autenticación",
+        "step_type": "oauth|api_key",
+        "description": "Conectar cuenta o ingresar credenciales"
+      },
+      {
+        "step_order": 3,
+        "title": "Configuración",
+        "step_type": "input",
+        "description": "Configuración específica del servicio"
+      },
+      {
+        "step_order": 4,
+        "title": "Prueba",
+        "step_type": "test",
+        "description": "Verificar que todo funciona"
+      },
+      {
+        "step_order": 5,
+        "title": "Completado",
+        "step_type": "completion",
+        "description": "Resumen y próximos pasos"
+      }
+    ]
+  }
+}
