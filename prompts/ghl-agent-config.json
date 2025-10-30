@@ -1,0 +1,253 @@
+{
+  "agent": {
+    "name": "ghl-business-intelligence",
+    "display_name": "GoHighLevel Business Intelligence Agent",
+    "description": "Specialized AI agent with direct access to GoHighLevel CRM for retrieving and analyzing business data including contacts, opportunities, pipelines, staff, tasks, calendars, and reports",
+    "category": "crm-analytics",
+    "version": "1.0.0"
+  },
+  "mcp_configuration": {
+    "required_mcps": [
+      {
+        "name": "ghl",
+        "display_name": "GoHighLevel",
+        "mcp_server_id": "gohighlevel",
+        "transport_type": "stdio",
+        "command": "node",
+        "args": ["/root/rogervibes/ghlmcp/dist/index.js"],
+        "env_vars": {
+          "GHL_API_KEY": "required",
+          "GHL_LOCATION_ID": "required"
+        },
+        "tools_used": [
+          "get_contact",
+          "create_contact",
+          "update_contact",
+          "upsert_contact",
+          "get_contacts",
+          "add_tags",
+          "remove_tags",
+          "get_all_tasks",
+          "search_opportunity",
+          "get_opportunity",
+          "update_opportunity",
+          "get_pipelines",
+          "search_conversation",
+          "get_messages",
+          "send_message",
+          "get_calendar_events",
+          "get_appointment_notes",
+          "get_order",
+          "list_transactions",
+          "get_location",
+          "get_custom_fields"
+        ]
+      }
+    ],
+    "optional_mcps": [
+      {
+        "name": "supabase-rag",
+        "display_name": "Supabase RAG",
+        "purpose": "Store and retrieve historical analytics and insights",
+        "mcp_server_id": "supabase-rag"
+      },
+      {
+        "name": "notion",
+        "display_name": "Notion",
+        "purpose": "Export reports and summaries to Notion",
+        "mcp_server_id": "notion"
+      }
+    ]
+  },
+  "system_prompt": {
+    "file": "./ghl-agent-prompt.md",
+    "template_variables": {
+      "business_name": "${BUSINESS_NAME}",
+      "location_id": "${GHL_LOCATION_ID}",
+      "timezone": "${TIMEZONE}",
+      "currency": "${CURRENCY}"
+    }
+  },
+  "capabilities": {
+    "contacts": {
+      "enabled": true,
+      "operations": ["read", "create", "update", "search", "tag"],
+      "max_results": 100
+    },
+    "opportunities": {
+      "enabled": true,
+      "operations": ["read", "update", "search", "analyze"],
+      "max_results": 100
+    },
+    "conversations": {
+      "enabled": true,
+      "operations": ["read", "search", "send"],
+      "max_results": 50
+    },
+    "calendars": {
+      "enabled": true,
+      "operations": ["read", "search"],
+      "max_results": 50
+    },
+    "payments": {
+      "enabled": true,
+      "operations": ["read", "search", "analyze"],
+      "max_results": 100
+    },
+    "tasks": {
+      "enabled": true,
+      "operations": ["read", "search", "analyze"],
+      "max_results": 100
+    },
+    "analytics": {
+      "enabled": true,
+      "operations": ["calculate", "compare", "trend_analysis"],
+      "metrics": [
+        "conversion_rate",
+        "pipeline_value",
+        "win_rate",
+        "average_deal_size",
+        "revenue",
+        "activity_metrics"
+      ]
+    }
+  },
+  "response_formatting": {
+    "default_format": "structured",
+    "use_emojis": true,
+    "include_insights": true,
+    "include_next_actions": true,
+    "currency_format": "USD",
+    "date_format": "MMM DD, YYYY",
+    "timezone": "America/New_York"
+  },
+  "routing_rules": [
+    {
+      "condition": "contact OR lead OR customer",
+      "mcp_server": "ghl",
+      "tools": ["get_contacts", "get_contact", "search_contact"],
+      "priority": 10
+    },
+    {
+      "condition": "opportunity OR deal OR pipeline OR sales",
+      "mcp_server": "ghl",
+      "tools": ["search_opportunity", "get_opportunity", "get_pipelines"],
+      "priority": 10
+    },
+    {
+      "condition": "task OR todo OR overdue OR pending",
+      "mcp_server": "ghl",
+      "tools": ["get_all_tasks"],
+      "priority": 9
+    },
+    {
+      "condition": "conversation OR message OR communication",
+      "mcp_server": "ghl",
+      "tools": ["search_conversation", "get_messages"],
+      "priority": 9
+    },
+    {
+      "condition": "calendar OR appointment OR meeting OR schedule",
+      "mcp_server": "ghl",
+      "tools": ["get_calendar_events", "get_appointment_notes"],
+      "priority": 8
+    },
+    {
+      "condition": "payment OR transaction OR revenue OR order",
+      "mcp_server": "ghl",
+      "tools": ["list_transactions", "get_order"],
+      "priority": 8
+    },
+    {
+      "condition": "report OR analytics OR metrics OR dashboard",
+      "mcp_server": "ghl",
+      "tools": ["search_opportunity", "get_contacts", "list_transactions"],
+      "priority": 7
+    }
+  ],
+  "default_filters": {
+    "contacts": {
+      "include_inactive": false,
+      "default_limit": 25
+    },
+    "opportunities": {
+      "include_closed": false,
+      "default_stages": ["qualified", "proposal", "negotiation"],
+      "default_limit": 25
+    },
+    "date_range": {
+      "default": "last_30_days",
+      "options": ["today", "this_week", "this_month", "this_quarter", "custom"]
+    }
+  },
+  "business_logic": {
+    "deal_size_categories": {
+      "small": { "max": 5000, "label": "Small Deal" },
+      "medium": { "min": 5000, "max": 25000, "label": "Medium Deal" },
+      "large": { "min": 25000, "max": 100000, "label": "Large Deal" },
+      "enterprise": { "min": 100000, "label": "Enterprise Deal" }
+    },
+    "priority_thresholds": {
+      "high_value_deal": 50000,
+      "vip_customer_lifetime_value": 100000,
+      "overdue_task_days": 7,
+      "stale_opportunity_days": 30,
+      "unresponsive_contact_days": 45
+    },
+    "win_probability": {
+      "new": 0.1,
+      "qualified": 0.25,
+      "proposal": 0.5,
+      "negotiation": 0.75,
+      "contract_sent": 0.9
+    }
+  },
+  "performance_settings": {
+    "cache_ttl": 300,
+    "max_concurrent_requests": 5,
+    "timeout_seconds": 30,
+    "retry_attempts": 3,
+    "rate_limit": {
+      "requests_per_minute": 60,
+      "burst": 10
+    }
+  },
+  "security": {
+    "data_privacy": true,
+    "pii_handling": "redact_in_logs",
+    "audit_logging": true,
+    "require_confirmation_for": [
+      "delete",
+      "bulk_update",
+      "send_message"
+    ]
+  },
+  "integrations": {
+    "notifications": {
+      "enabled": true,
+      "channels": ["email", "slack"],
+      "events": [
+        "high_value_deal_at_risk",
+        "overdue_tasks_critical",
+        "deal_closed",
+        "quota_achieved"
+      ]
+    },
+    "exports": {
+      "enabled": true,
+      "formats": ["json", "csv", "markdown"],
+      "destinations": ["notion", "google_sheets", "email"]
+    }
+  },
+  "metadata": {
+    "author": "RogerVibes",
+    "created_at": "2025-10-30",
+    "last_updated": "2025-10-30",
+    "version": "1.0.0",
+    "documentation": {
+      "system_prompt": "./ghl-agent-prompt.md",
+      "query_examples": "./ghl-query-examples.md",
+      "setup_guide": "./ghl-setup-guide.md"
+    }
+  }
+}
