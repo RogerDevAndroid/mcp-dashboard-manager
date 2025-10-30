@@ -1,0 +1,35 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# Compiled TypeScript
+*.js
+*.js.map
+
+# Except configuration
+!*.config.js
+
+# Credentials
+credentials.json
+secrets.json
+
+# User specific
+user-config.json
+
+# Build
+build/
+out/
+
+# Next.js (for future dashboard)
+.next/
+out/
+
+# Testing
+coverage/
+.nyc_output/
